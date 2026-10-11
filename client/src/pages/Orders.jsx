@@ -55,6 +55,12 @@ const Orders = () => {
     setSearchParams(newParams);
   };
 
+  const handlePageChange = (newPage) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', String(newPage));
+    setSearchParams(newParams);
+  };
+
   return (
     <div className="container-fluid px-0">
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
@@ -151,7 +157,7 @@ const Orders = () => {
                 <tbody className="small">
                   {orders.map((o) => (
                     <tr key={o._id}>
-                      <td className="font-monospace fw-bold text-primary">{o.orderNumber}</td>
+                      <td className="font-monospace fw-bold" style={{ color: '#0d966c' }}>{o.orderNumber}</td>
                       <td>
                         <div className="fw-semibold text-dark">{o.customer?.name || 'Walk-in'}</div>
                         <span className="text-muted" style={{ fontSize: '0.75rem' }}>
@@ -170,8 +176,8 @@ const Orders = () => {
                       <td>{o.createdBy?.name || 'Staff'}</td>
                       <td className="text-muted">{new Date(o.orderDate || o.createdAt).toLocaleDateString()}</td>
                       <td className="text-end">
-                        <Link to={`/orders/${o._id}`} className="btn btn-outline-secondary btn-sm py-0 px-2">
-                          View Invoice
+                        <Link to={`/orders/${o._id}`} className="btn btn-outline-secondary btn-sm">
+                          View
                         </Link>
                       </td>
                     </tr>
@@ -187,7 +193,7 @@ const Orders = () => {
             totalPages={pagination.totalPages}
             hasPrev={pagination.hasPrev}
             hasNext={pagination.hasNext}
-            onPageChange={(p) => updateParam('page', p)}
+            onPageChange={handlePageChange}
           />
         </div>
       </div>

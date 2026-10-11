@@ -15,8 +15,8 @@ const ConfirmModal = ({
   return (
     <>
       <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ zIndex: 1060 }}>
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content shadow border-0 rounded-3">
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content">
             <div className="modal-header border-0 pb-0">
               <h5 className="modal-title fw-bold text-dark">{title}</h5>
               <button

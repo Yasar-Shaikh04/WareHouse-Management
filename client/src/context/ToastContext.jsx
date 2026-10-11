@@ -27,12 +27,12 @@ export const ToastProvider = ({ children }) => {
         {toasts.map((toast) => {
           const bgClass =
             toast.type === 'success'
-              ? 'bg-success text-white'
+              ? 'bg-success'
               : toast.type === 'danger' || toast.type === 'error'
               ? 'bg-danger text-white'
               : toast.type === 'warning'
               ? 'bg-warning text-dark'
-              : 'bg-primary text-white';
+              : 'bg-success';
 
           return (
             <div
@@ -50,7 +50,7 @@ export const ToastProvider = ({ children }) => {
                 <button
                   type="button"
                   className={`btn-close me-2 m-auto ${
-                    toast.type === 'warning' ? '' : 'btn-close-white'
+                    toast.type === 'danger' || toast.type === 'error' ? 'btn-close-white' : ''
                   }`}
                   onClick={() => removeToast(toast.id)}
                   aria-label="Close"

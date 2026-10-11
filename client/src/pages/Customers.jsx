@@ -213,7 +213,7 @@ const Customers = () => {
                       </td>
                       <td className="fw-bold text-success">${c.totalSpent?.toFixed(2) || '0.00'}</td>
                       <td className="text-end">
-                        <div className="btn-group btn-group-sm">
+                        <div className="btn-group btn-group-sm wms-action-group">
                           <button
                             className="btn btn-outline-secondary"
                             title="View Orders"
@@ -359,7 +359,7 @@ const Customers = () => {
                   <div>
                     <h5 className="modal-title fw-bold text-dark">{viewCustomer.name}</h5>
                     <span className="small text-muted">
-                      {viewCustomer.companyName ? `${viewCustomer.companyName} • ` : ''}Order History & Invoices
+                      {viewCustomer.companyName ? `${viewCustomer.companyName} Â• ` : ''}Order History & Invoices
                     </span>
                   </div>
                   <button type="button" className="btn-close" onClick={() => setViewCustomer(null)}></button>

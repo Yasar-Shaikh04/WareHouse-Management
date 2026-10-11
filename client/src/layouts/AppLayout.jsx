@@ -8,7 +8,7 @@ const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="d-flex min-vh-100">
+    <div className="d-flex wms-app-shell">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="wms-main-content">
         <Navbar onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />

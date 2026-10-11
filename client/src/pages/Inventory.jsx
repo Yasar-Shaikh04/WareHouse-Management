@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import StatCard from '../components/common/StatCard';
 import StatusBadge from '../components/common/StatusBadge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 
 const Inventory = () => {
   const { showToast } = useToast();
@@ -136,6 +137,12 @@ const Inventory = () => {
         <div className="card-body p-0">
           {loading ? (
             <LoadingSpinner text="Computing inventory valuations..." />
+          ) : filteredInventory.length === 0 ? (
+            <EmptyState
+              icon="bi-clipboard-data"
+              title="No inventory records"
+              message="No stock items match your search, or the catalog is empty."
+            />
           ) : (
             <div className="table-responsive">
               <table className="table table-hover align-middle mb-0">
@@ -173,7 +180,7 @@ const Inventory = () => {
                         <StatusBadge status={item.status} />
                       </td>
                       <td className="text-end">
-                        <Link to={`/products/${item._id}`} className="btn btn-outline-secondary btn-sm py-0 px-2">
+                        <Link to={`/products/${item._id}`} className="btn btn-outline-secondary btn-sm">
                           View
                         </Link>
                       </td>

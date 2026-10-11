@@ -216,7 +216,7 @@ const Suppliers = () => {
                         </button>
                       </td>
                       <td className="text-end">
-                        <div className="btn-group btn-group-sm">
+                        <div className="btn-group btn-group-sm wms-action-group">
                           <button
                             className="btn btn-outline-secondary"
                             title="View Details"

@@ -17,7 +17,7 @@ import StatCard from '../components/common/StatCard';
 import StatusBadge from '../components/common/StatusBadge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
-const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+const COLORS = ['#10b981', '#39ff14', '#64716a', '#f59e0b', '#0d966c', '#171c1a'];
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -63,14 +63,16 @@ const Dashboard = () => {
   return (
     <div className="container-fluid px-0">
       {/* Page Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+      <div className="wms-page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-          <h2 className="fw-bold text-dark mb-1">Warehouse Dashboard</h2>
-          <p className="text-muted small mb-0">Real-time inventory levels, stock health, and recent operations</p>
+          <h2 className="fw-bold mb-1">Operations Dashboard</h2>
+          <p className="small mb-0" style={{ color: '#64716a' }}>
+            Live inventory, order activity, and warehouse alerts from your database
+          </p>
         </div>
-        <div className="d-flex gap-2">
-          <Link to="/inventory" className="btn btn-outline-primary btn-sm">
-            <i className="bi bi-clipboard-data me-1"></i> Inventory Status
+        <div className="d-flex flex-wrap gap-2">
+          <Link to="/inventory" className="btn btn-outline-secondary btn-sm">
+            <i className="bi bi-clipboard-data me-1"></i> Inventory
           </Link>
           <Link to="/orders/new" className="btn btn-primary btn-sm">
             <i className="bi bi-plus-lg me-1"></i> New Order
@@ -80,18 +82,21 @@ const Dashboard = () => {
 
       {/* Low Stock Warning Banner if any */}
       {stats?.lowStockProducts > 0 && (
-        <div className="alert alert-warning border-0 shadow-sm d-flex align-items-center justify-content-between mb-4">
-          <div className="d-flex align-items-center">
-            <i className="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
+        <div
+          className="alert d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4"
+          style={{ background: '#fef6e7', border: '1px solid #f0d9a0', color: '#171c1a' }}
+        >
+          <div className="d-flex align-items-start">
+            <i className="bi bi-exclamation-triangle-fill me-3 mt-1" style={{ color: '#8a5a00' }}></i>
             <div>
-              <strong className="d-block">Low Stock Alert!</strong>
-              <span className="small">
-                There are <strong>{stats.lowStockProducts}</strong> product(s) currently at or below minimum threshold levels.
+              <strong className="d-block">Stock alert</strong>
+              <span className="small" style={{ color: '#64716a' }}>
+                {stats.lowStockProducts} product{stats.lowStockProducts === 1 ? '' : 's'} at or below minimum threshold.
               </span>
             </div>
           </div>
-          <Link to="/products?stockStatus=low-stock" className="btn btn-warning btn-sm text-dark fw-semibold">
-            Review Stock
+          <Link to="/products?stockStatus=low-stock" className="btn btn-sm btn-outline-secondary">
+            Review stock
           </Link>
         </div>
       )}
@@ -152,23 +157,25 @@ const Dashboard = () => {
       <div className="row g-4 mb-4">
         {/* Monthly Activity Bar Chart */}
         <div className="col-12 col-lg-7">
-          <div className="card wms-card h-100 border-0 shadow-sm">
-            <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-              <h6 className="fw-bold mb-0">Monthly Order Activity</h6>
-              <span className="badge bg-light text-muted border">Real-time DB data</span>
+          <div className="card wms-card h-100">
+            <div className="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 className="fw-semibold mb-0">Monthly order activity</h6>
+              <span className="badge" style={{ background: '#eef2f0', color: '#64716a' }}>
+                Live data
+              </span>
             </div>
             <div className="card-body">
               <div style={{ width: '100%', height: 280 }}>
                 {charts?.monthlyActivity?.length > 0 ? (
                   <ResponsiveContainer>
                     <BarChart data={charts.monthlyActivity} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-                      <YAxis stroke="#64748b" fontSize={12} allowDecimals={false} />
+                      <XAxis dataKey="month" stroke="#64716a" fontSize={12} />
+                      <YAxis stroke="#64716a" fontSize={12} allowDecimals={false} />
                       <Tooltip
-                        contentStyle={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                        contentStyle={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8e5' }}
                       />
                       <Legend />
-                      <Bar dataKey="orders" fill="#2563eb" name="Orders Placed" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="orders" fill="#10b981" name="Orders placed" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
@@ -183,10 +190,12 @@ const Dashboard = () => {
 
         {/* Category Inventory Distribution Pie Chart */}
         <div className="col-12 col-lg-5">
-          <div className="card wms-card h-100 border-0 shadow-sm">
-            <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-              <h6 className="fw-bold mb-0">Stock by Category</h6>
-              <span className="badge bg-light text-muted border">Units</span>
+          <div className="card wms-card h-100">
+            <div className="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 className="fw-semibold mb-0">Stock by category</h6>
+              <span className="badge" style={{ background: '#eef2f0', color: '#64716a' }}>
+                Units
+              </span>
             </div>
             <div className="card-body">
               <div style={{ width: '100%', height: 280 }}>
@@ -202,14 +211,13 @@ const Dashboard = () => {
                         paddingAngle={4}
                         dataKey="units"
                         nameKey="name"
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                        labelLine={false}
                       >
                         {charts.categoryDistribution.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
+                      <Legend />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
@@ -227,11 +235,11 @@ const Dashboard = () => {
       <div className="row g-4">
         {/* Recent Stock Movements */}
         <div className="col-12 col-xl-6">
-          <div className="card wms-card border-0 shadow-sm h-100">
-            <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-              <h6 className="fw-bold mb-0">Recent Stock Movements</h6>
-              <Link to="/stock-movements" className="btn btn-link btn-sm p-0 text-decoration-none">
-                View All <i className="bi bi-arrow-right"></i>
+          <div className="card wms-card h-100">
+            <div className="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 className="fw-semibold mb-0">Recent stock activity</h6>
+              <Link to="/stock-movements" className="btn btn-link btn-sm p-0 text-decoration-none" style={{ color: '#0d966c' }}>
+                View all <i className="bi bi-arrow-right"></i>
               </Link>
             </div>
             <div className="table-responsive">
@@ -280,11 +288,11 @@ const Dashboard = () => {
 
         {/* Recent Orders */}
         <div className="col-12 col-xl-6">
-          <div className="card wms-card border-0 shadow-sm h-100">
-            <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-              <h6 className="fw-bold mb-0">Recent Customer Orders</h6>
-              <Link to="/orders" className="btn btn-link btn-sm p-0 text-decoration-none">
-                View All <i className="bi bi-arrow-right"></i>
+          <div className="card wms-card h-100">
+            <div className="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 className="fw-semibold mb-0">Recent orders</h6>
+              <Link to="/orders" className="btn btn-link btn-sm p-0 text-decoration-none" style={{ color: '#0d966c' }}>
+                View all <i className="bi bi-arrow-right"></i>
               </Link>
             </div>
             <div className="table-responsive">
@@ -302,15 +310,15 @@ const Dashboard = () => {
                   {recentOrders?.length > 0 ? (
                     recentOrders.map((o) => (
                       <tr key={o._id}>
-                        <td className="fw-bold text-primary">{o.orderNumber}</td>
+                        <td className="fw-bold" style={{ color: '#0d966c' }}>{o.orderNumber}</td>
                         <td>{o.customer?.name || 'Walk-in'}</td>
                         <td className="fw-semibold">${o.totalAmount?.toFixed(2)}</td>
                         <td>
                           <StatusBadge status={o.status} />
                         </td>
                         <td>
-                          <Link to={`/orders/${o._id}`} className="btn btn-outline-secondary btn-sm py-0 px-2">
-                            Details
+                          <Link to={`/orders/${o._id}`} className="btn btn-outline-secondary btn-sm">
+                            View
                           </Link>
                         </td>
                       </tr>

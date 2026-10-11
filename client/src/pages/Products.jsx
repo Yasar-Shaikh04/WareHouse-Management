@@ -293,7 +293,7 @@ const Products = () => {
                           <StatusBadge status={status} />
                         </td>
                         <td className="text-end">
-                          <div className="btn-group btn-group-sm">
+                          <div className="btn-group btn-group-sm wms-action-group">
                             <Link to={`/products/${p._id}`} className="btn btn-outline-secondary" title="View Details">
                               <i className="bi bi-eye"></i>
                             </Link>

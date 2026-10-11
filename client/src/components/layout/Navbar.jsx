@@ -18,22 +18,9 @@ const Navbar = ({ onToggleSidebar }) => {
     }
   };
 
-  const getRoleBadge = (role) => {
-    switch (role) {
-      case 'Admin':
-        return 'bg-danger text-white';
-      case 'Warehouse Manager':
-        return 'bg-primary text-white';
-      case 'Staff':
-        return 'bg-success text-white';
-      default:
-        return 'bg-secondary text-white';
-    }
-  };
-
   return (
-    <nav className="wms-navbar d-flex align-items-center justify-content-between">
-      <div className="d-flex align-items-center gap-3">
+    <nav className="wms-navbar d-flex align-items-center justify-content-between gap-2">
+      <div className="d-flex align-items-center gap-2">
         <button
           className="btn btn-sm btn-outline-secondary d-lg-none"
           onClick={onToggleSidebar}
@@ -41,13 +28,17 @@ const Navbar = ({ onToggleSidebar }) => {
         >
           <i className="bi bi-list fs-5"></i>
         </button>
-        <span className="fw-bold fs-5 text-dark d-none d-sm-inline">
-          <i className="bi bi-boxes text-primary me-2"></i>
-          Warehouse Management System
-        </span>
+        <div className="d-none d-sm-block">
+          <div className="fw-bold" style={{ fontSize: '0.95rem', color: '#171c1a' }}>
+            Warehouse Management
+          </div>
+          <div className="small d-none d-md-block" style={{ color: '#64716a', fontSize: '0.75rem' }}>
+            Inventory, orders, and stock operations
+          </div>
+        </div>
       </div>
 
-      <div className="d-flex align-items-center gap-3">
+      <div className="d-flex align-items-center gap-2">
         {user && (
           <div className="dropdown">
             <button
@@ -58,24 +49,33 @@ const Navbar = ({ onToggleSidebar }) => {
               aria-expanded="false"
             >
               <div
-                className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                style={{ width: '30px', height: '30px', fontSize: '0.85rem' }}
+                className="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  fontSize: '0.85rem',
+                  background: 'rgba(16, 185, 129, 0.16)',
+                  color: '#0d966c',
+                }}
               >
                 {user.name ? user.name[0].toUpperCase() : 'U'}
               </div>
               <div className="text-start d-none d-md-block lh-1">
-                <div className="fw-semibold small">{user.name}</div>
-                <span className={`badge ${getRoleBadge(user.role)} mt-0.5`} style={{ fontSize: '0.65rem' }}>
+                <div className="fw-semibold small" style={{ color: '#171c1a' }}>
+                  {user.name}
+                </div>
+                <span className="small" style={{ color: '#64716a', fontSize: '0.7rem' }}>
                   {user.role}
                 </span>
               </div>
             </button>
-            <ul className="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenuDropdown">
+            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown">
               <li>
-                <div className="px-3 py-2 border-bottom">
+                <div className="px-3 py-2" style={{ borderBottom: '1px solid #e2e8e5' }}>
                   <div className="fw-semibold">{user.name}</div>
-                  <div className="small text-muted">{user.email}</div>
-                  <span className={`badge ${getRoleBadge(user.role)} mt-1`}>{user.role}</span>
+                  <div className="small" style={{ color: '#64716a' }}>
+                    {user.email}
+                  </div>
                 </div>
               </li>
               <li>

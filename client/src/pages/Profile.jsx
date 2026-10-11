@@ -101,15 +101,15 @@ const Profile = () => {
           <div className="card wms-card border-0 shadow-sm">
             <div className="card-body p-4 d-flex flex-column flex-sm-row align-items-sm-center gap-3">
               <div
-                className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-2 shadow-sm"
-                style={{ width: '64px', height: '64px' }}
+                className="rounded-circle d-flex align-items-center justify-content-center fw-bold fs-2"
+                style={{ width: '64px', height: '64px', background: 'rgba(16, 185, 129, 0.16)', color: '#0d966c' }}
               >
                 {user?.name ? user.name[0].toUpperCase() : 'U'}
               </div>
               <div className="flex-grow-1">
                 <div className="d-flex align-items-center gap-2 mb-1">
                   <h4 className="fw-bold mb-0 text-dark">{user?.name}</h4>
-                  <span className="badge bg-primary">{user?.role}</span>
+                  <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.16)', color: '#0d966c' }}>{user?.role}</span>
                 </div>
                 <div className="text-muted small mb-1">
                   <i className="bi bi-envelope me-1"></i> {user?.email}
@@ -193,7 +193,7 @@ const Profile = () => {
                   <input
                     type="password"
                     className={`form-control ${passwordErrors.currentPassword ? 'is-invalid' : ''}`}
-                    placeholder="••••••••"
+                    placeholder=""
                     {...registerPassword('currentPassword')}
                   />
                   {passwordErrors.currentPassword && (

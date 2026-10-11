@@ -170,7 +170,7 @@ const Categories = () => {
                       </td>
                       <td className="text-muted">{new Date(cat.createdAt).toLocaleDateString()}</td>
                       <td className="text-end">
-                        <div className="btn-group btn-group-sm">
+                        <div className="btn-group btn-group-sm wms-action-group">
                           {hasRole('Admin', 'Warehouse Manager') && (
                             <button
                               className="btn btn-outline-primary"
