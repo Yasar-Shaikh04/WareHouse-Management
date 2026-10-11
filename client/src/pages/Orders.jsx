@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { orderService } from '../services/orderService';
+import { reportService } from '../services/reportService';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import StatusBadge from '../components/common/StatusBadge';
@@ -11,6 +12,7 @@ import EmptyState from '../components/common/EmptyState';
 const Orders = () => {
   const { hasRole } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [orders, setOrders] = useState([]);
@@ -73,7 +75,7 @@ const Orders = () => {
             <i className="bi bi-plus-lg"></i> Create New Order
           </Link>
           <a
-            href="/api/v1/reports/orders/export"
+            href={reportService.exportOrdersUrl}
             download
             className="btn btn-outline-secondary btn-sm"
           >
@@ -137,7 +139,7 @@ const Orders = () => {
               title="No Orders Found"
               message="No orders match your current filters or none have been placed yet."
               actionText="Create New Order"
-              onAction={() => setSearchParams({})}
+              onAction={() => navigate('/orders/new')}
             />
           ) : (
             <div className="table-responsive">

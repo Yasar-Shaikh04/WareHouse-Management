@@ -1,5 +1,11 @@
 import api from './api';
 
+// Export endpoints are opened directly by the browser (download links), so they
+// must be absolute and use the same backend base URL as the Axios client
+// (VITE_API_URL origin + /api/v1), not a hardcoded relative path.
+const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const exportBase = `${API_URL}/api/v1/reports`;
+
 export const reportService = {
   getDashboardStats: async () => {
     const res = await api.get('/reports/dashboard');
@@ -13,7 +19,7 @@ export const reportService = {
     const res = await api.get('/reports/low-stock');
     return res.data;
   },
-  exportInventoryUrl: '/api/v1/reports/inventory/export',
-  exportMovementsUrl: '/api/v1/reports/stock-movements/export',
-  exportOrdersUrl: '/api/v1/reports/orders/export',
+  exportInventoryUrl: `${exportBase}/inventory/export`,
+  exportMovementsUrl: `${exportBase}/stock-movements/export`,
+  exportOrdersUrl: `${exportBase}/orders/export`,
 };

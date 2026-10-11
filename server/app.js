@@ -19,6 +19,11 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const createApp = () => {
   const app = express();
 
+  // Render/Heroku run behind a reverse proxy. Trusting the first proxy hop
+  // lets express-session detect the original HTTPS protocol so that secure
+  // cross-site cookies are emitted correctly in production.
+  app.set('trust proxy', 1);
+
   // Helmet with relaxed cross-origin resource policy for serving uploaded images
   app.use(
     helmet({
@@ -26,23 +31,35 @@ const createApp = () => {
     })
   );
 
-  // CORS configuration
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  // CORS configuration. CLIENT_URL may be a comma-separated list of allowed
+  // frontend origins (e.g. Vercel production + preview deployments).
   const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
-    process.env.CLIENT_URL,
-  ].filter(Boolean);
+    ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : []),
+  ]
+    .map((origin) => origin && origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (e.g. mobile apps, curl, postman)
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin (mobile apps, curl, server-to-server).
+        if (!origin) {
           return callback(null, true);
         }
-        return callback(null, true); // Dev convenience
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        // Restrict unknown origins in production; keep dev convenience locally.
+        if (isProduction) {
+          return callback(null, false);
+        }
+        return callback(null, true);
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

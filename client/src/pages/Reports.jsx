@@ -173,21 +173,29 @@ const Reports = () => {
                   </tr>
                 </thead>
                 <tbody className="small">
-                  {filteredInventory.map((item, idx) => (
-                    <tr key={idx}>
-                      <td className="font-monospace text-primary fw-semibold">{item.sku}</td>
-                      <td className="fw-semibold text-dark">{item.name}</td>
-                      <td>{item.category}</td>
-                      <td>{item.supplier}</td>
-                      <td className="fw-bold">{item.quantity}</td>
-                      <td>${item.purchasePrice?.toFixed(2)}</td>
-                      <td>${item.sellingPrice?.toFixed(2)}</td>
-                      <td className="fw-semibold text-dark">${item.inventoryValue?.toFixed(2)}</td>
-                      <td>
-                        <StatusBadge status={item.status} />
+                  {filteredInventory.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="text-center text-muted py-4">
+                        No inventory rows match your filter.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredInventory.map((item) => (
+                      <tr key={item._id || item.sku}>
+                        <td className="font-monospace text-primary fw-semibold">{item.sku}</td>
+                        <td className="fw-semibold text-dark">{item.name}</td>
+                        <td>{item.category}</td>
+                        <td>{item.supplier}</td>
+                        <td className="fw-bold">{item.quantity}</td>
+                        <td>${item.purchasePrice?.toFixed(2)}</td>
+                        <td>${item.sellingPrice?.toFixed(2)}</td>
+                        <td className="fw-semibold text-dark">${item.inventoryValue?.toFixed(2)}</td>
+                        <td>
+                          <StatusBadge status={item.status} />
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -206,31 +214,39 @@ const Reports = () => {
                   </tr>
                 </thead>
                 <tbody className="small">
-                  {filteredLowStock.map((p) => {
-                    const deficit = p.minStockLevel - p.quantity;
-                    return (
-                      <tr key={p._id}>
-                        <td className="font-monospace text-primary fw-semibold">{p.sku}</td>
-                        <td className="fw-semibold text-dark">{p.name}</td>
-                        <td className="fw-bold text-danger">{p.quantity} units</td>
-                        <td>{p.minStockLevel} units</td>
-                        <td>
-                          <span className="badge bg-danger bg-opacity-10 text-danger border border-danger">
-                            -{deficit} units
-                          </span>
-                        </td>
-                        <td>
-                          <div>{p.supplier?.companyName}</div>
-                          <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                            {p.supplier?.phone}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="badge bg-light text-dark border">{p.location}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredLowStock.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center text-muted py-4">
+                        No low-stock products match your filter.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLowStock.map((p) => {
+                      const deficit = p.minStockLevel - p.quantity;
+                      return (
+                        <tr key={p._id}>
+                          <td className="font-monospace text-primary fw-semibold">{p.sku}</td>
+                          <td className="fw-semibold text-dark">{p.name}</td>
+                          <td className="fw-bold text-danger">{p.quantity} units</td>
+                          <td>{p.minStockLevel} units</td>
+                          <td>
+                            <span className="badge bg-danger bg-opacity-10 text-danger border border-danger">
+                              -{deficit} units
+                            </span>
+                          </td>
+                          <td>
+                            <div>{p.supplier?.companyName}</div>
+                            <span className="text-muted" style={{ fontSize: '0.75rem' }}>
+                              {p.supplier?.phone}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="badge bg-light text-dark border">{p.location}</span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>

@@ -30,6 +30,7 @@ const ProductForm = () => {
 
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [depsError, setDepsError] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -59,43 +60,57 @@ const ProductForm = () => {
     },
   });
 
-  useEffect(() => {
-    const loadDependencies = async () => {
-      try {
-        const [catsRes, supsRes] = await Promise.all([
-          categoryService.getAll(),
-          supplierService.getAll(),
-        ]);
-        setCategories(catsRes.categories || []);
-        setSuppliers(supsRes.suppliers || []);
+  const loadReferenceData = async () => {
+    try {
+      const [catsRes, supsRes] = await Promise.all([
+        categoryService.getAll(),
+        supplierService.getAll(),
+      ]);
+      setCategories(catsRes.categories || []);
+      setSuppliers(supsRes.suppliers || []);
+      setDepsError(false);
+    } catch (err) {
+      setDepsError(true);
+      showToast(err.message || 'Failed to load categories and suppliers.', 'danger');
+    }
+  };
 
-        if (isEdit) {
-          const prodRes = await productService.getById(id);
-          const p = prodRes.product;
-          reset({
-            sku: p.sku,
-            name: p.name,
-            description: p.description || '',
-            category: p.category?._id || p.category || '',
-            supplier: p.supplier?._id || p.supplier || '',
-            purchasePrice: p.purchasePrice,
-            sellingPrice: p.sellingPrice,
-            quantity: p.quantity,
-            minStockLevel: p.minStockLevel,
-            location: p.location || 'Bay A-01',
-          });
-          if (p.imageUrl) {
-            setImagePreview(p.imageUrl);
-          }
+  useEffect(() => {
+    loadReferenceData();
+  }, []);
+
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (!isEdit) {
+        setInitialLoading(false);
+        return;
+      }
+      try {
+        const prodRes = await productService.getById(id);
+        const p = prodRes.product;
+        reset({
+          sku: p.sku,
+          name: p.name,
+          description: p.description || '',
+          category: p.category?._id || p.category || '',
+          supplier: p.supplier?._id || p.supplier || '',
+          purchasePrice: p.purchasePrice,
+          sellingPrice: p.sellingPrice,
+          quantity: p.quantity,
+          minStockLevel: p.minStockLevel,
+          location: p.location || 'Bay A-01',
+        });
+        if (p.imageUrl) {
+          setImagePreview(p.imageUrl);
         }
       } catch (err) {
-        showToast(err.message || 'Failed to load form details.', 'danger');
+        showToast(err.message || 'Failed to load product details.', 'danger');
       } finally {
         setInitialLoading(false);
       }
     };
 
-    loadDependencies();
+    loadProduct();
   }, [id, isEdit, reset, showToast]);
 
   const handleImageChange = (e) => {
@@ -166,6 +181,18 @@ const ProductForm = () => {
         <div className="alert alert-danger py-2 small d-flex align-items-center mb-4">
           <i className="bi bi-exclamation-triangle-fill me-2"></i>
           <div>{serverError}</div>
+        </div>
+      )}
+
+      {depsError && (
+        <div className="alert alert-warning py-2 small d-flex justify-content-between align-items-center mb-4">
+          <span>
+            <i className="bi bi-exclamation-triangle me-1"></i>
+            Categories and suppliers failed to load. The required dropdowns below may be empty.
+          </span>
+          <button type="button" className="btn btn-sm btn-outline-warning" onClick={loadReferenceData}>
+            Retry
+          </button>
         </div>
       )}
 

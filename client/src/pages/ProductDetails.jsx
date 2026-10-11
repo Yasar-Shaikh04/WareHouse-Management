@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productService } from '../services/productService';
 import { useAuth } from '../context/AuthContext';
@@ -13,31 +13,58 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
+  const fetchDetails = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const res = await productService.getById(id);
+      setProduct(res.product);
+      setMovements(res.recentMovements || []);
+    } catch (err) {
+      if (err.status === 404) {
+        setProduct(null);
+      } else {
+        setLoadError(err.message || 'Failed to load product details.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        const res = await productService.getById(id);
-        setProduct(res.product);
-        setMovements(res.recentMovements || []);
-      } catch (err) {
-        showToast(err.message || 'Failed to load product details.', 'danger');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDetails();
-  }, [id, showToast]);
+  }, [fetchDetails]);
 
   if (loading) {
     return <LoadingSpinner text="Loading product profile..." />;
+  }
+
+  if (loadError) {
+    return (
+      <div className="text-center py-5">
+        <div className="alert alert-danger d-inline-block text-start" role="alert">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {loadError}
+        </div>
+        <div className="d-flex justify-content-center gap-2">
+          <button className="btn btn-primary btn-sm" onClick={fetchDetails}>
+            <i className="bi bi-arrow-clockwise me-1"></i> Retry
+          </button>
+          <Link to="/products" className="btn btn-outline-secondary btn-sm">
+            Back to Products
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (!product) {
     return (
       <div className="text-center py-5">
         <h4>Product Not Found</h4>
+        <p className="text-muted small">This product may have been deleted or the link is invalid.</p>
         <Link to="/products" className="btn btn-primary btn-sm mt-2">
           Back to Products
         </Link>

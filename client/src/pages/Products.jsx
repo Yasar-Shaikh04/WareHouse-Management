@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { productService } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 import { supplierService } from '../services/supplierService';
@@ -14,6 +14,7 @@ import EmptyState from '../components/common/EmptyState';
 const Products = () => {
   const { hasRole } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
@@ -21,6 +22,7 @@ const Products = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, hasPrev: false, hasNext: false });
   const [loading, setLoading] = useState(true);
+  const [filtersError, setFiltersError] = useState(false);
 
   // Filters state from URL search params
   const search = searchParams.get('search') || '';
@@ -42,8 +44,10 @@ const Products = () => {
       ]);
       setCategories(catsRes.categories || []);
       setSuppliers(supsRes.suppliers || []);
+      setFiltersError(false);
     } catch (err) {
-      console.error('Failed to load filter metadata:', err);
+      setFiltersError(true);
+      showToast(err.message || 'Failed to load category/supplier filters.', 'danger');
     }
   };
 
@@ -130,6 +134,17 @@ const Products = () => {
 
       <div className="card wms-card border-0 shadow-sm mb-4">
         <div className="card-body p-3">
+          {filtersError && (
+            <div className="alert alert-warning py-2 px-3 small d-flex justify-content-between align-items-center mb-3">
+              <span>
+                <i className="bi bi-exclamation-triangle me-1"></i>
+                Category and supplier filters failed to load.
+              </span>
+              <button className="btn btn-sm btn-outline-warning" onClick={fetchFiltersData}>
+                Retry
+              </button>
+            </div>
+          )}
           <div className="row g-2">
             <div className="col-12 col-md-3">
               <div className="input-group input-group-sm">
@@ -223,7 +238,7 @@ const Products = () => {
               title="No Products Found"
               message="No products match your current filters or none have been added yet."
               actionText={hasRole('Admin', 'Warehouse Manager') ? 'Add New Product' : null}
-              onAction={() => setSearchParams({})}
+              onAction={() => navigate('/products/new')}
             />
           ) : (
             <div className="table-responsive">

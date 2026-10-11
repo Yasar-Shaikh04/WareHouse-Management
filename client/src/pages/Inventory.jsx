@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { inventoryService } from '../services/inventoryService';
+import { reportService } from '../services/reportService';
 import { useToast } from '../context/ToastContext';
 import StatCard from '../components/common/StatCard';
 import StatusBadge from '../components/common/StatusBadge';
@@ -51,7 +52,7 @@ const Inventory = () => {
             <i className="bi bi-arrow-left-right me-1"></i> Stock Movements Log
           </Link>
           <a
-            href="/api/v1/reports/inventory/export"
+            href={reportService.exportInventoryUrl}
             download
             className="btn btn-outline-secondary btn-sm"
           >

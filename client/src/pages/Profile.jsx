@@ -193,7 +193,7 @@ const Profile = () => {
                   <input
                     type="password"
                     className={`form-control ${passwordErrors.currentPassword ? 'is-invalid' : ''}`}
-                    placeholder=""
+                    placeholder="Enter current password"
                     {...registerPassword('currentPassword')}
                   />
                   {passwordErrors.currentPassword && (

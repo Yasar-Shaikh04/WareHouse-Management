@@ -243,7 +243,7 @@ const Login = () => {
                   autoComplete="current-password"
                   disabled={submitting}
                   className={`form-control ${errors.password ? 'border-danger' : ''}`}
-                  placeholder="••••••••••••"
+                  placeholder="Enter your password"
                   {...register('password')}
                 />
                 <button

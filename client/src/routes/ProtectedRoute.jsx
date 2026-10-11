@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -28,13 +28,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
           </div>
           <p className="mb-2">
             Your current account role is <strong className="badge bg-secondary">{user.role}</strong>.
-            This module requires one of the following roles: {allowedRoles.map(r => `<span class="badge bg-danger ms-1">${r}</span>`).join(' ')}
+            {' '}This module requires one of the following roles:{' '}
+            {allowedRoles.map((r) => (
+              <span key={r} className="badge bg-danger ms-1">{r}</span>
+            ))}
           </p>
           <hr />
           <div className="d-flex justify-content-end">
-            <a href="/dashboard" className="btn btn-outline-danger btn-sm">
+            <Link to="/dashboard" className="btn btn-outline-danger btn-sm">
               Return to Dashboard
-            </a>
+            </Link>
           </div>
         </div>
       </div>

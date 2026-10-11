@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { inventoryService } from '../services/inventoryService';
 import { productService } from '../services/productService';
+import { reportService } from '../services/reportService';
 import { useToast } from '../context/ToastContext';
 import StatusBadge from '../components/common/StatusBadge';
 import Pagination from '../components/common/Pagination';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EmptyState from '../components/common/EmptyState';
+
+const PRODUCT_SELECT_LIMIT = 500;
 
 const StockMovements = () => {
   const { showToast } = useToast();
@@ -14,6 +17,7 @@ const StockMovements = () => {
 
   const [movements, setMovements] = useState([]);
   const [productsList, setProductsList] = useState([]);
+  const [productsError, setProductsError] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, hasPrev: false, hasNext: false });
   const [loading, setLoading] = useState(true);
 
@@ -28,6 +32,7 @@ const StockMovements = () => {
     product: '',
     movementType: 'IN',
     quantity: 1,
+    adjustmentDirection: 'ADD',
     reason: '',
     referenceNumber: '',
   });
@@ -37,10 +42,19 @@ const StockMovements = () => {
 
   const fetchProductsForSelect = async () => {
     try {
-      const res = await productService.getAll({ limit: 100 });
-      setProductsList(res.products || []);
+      const res = await productService.getAll({ limit: PRODUCT_SELECT_LIMIT });
+      const list = res.products || [];
+      setProductsList(list);
+      setProductsError(false);
+      if (res.pagination?.total > list.length) {
+        showToast(
+          `Only the first ${list.length} of ${res.pagination.total} products are shown in the selector. Use search to narrow results.`,
+          'warning'
+        );
+      }
     } catch (err) {
-      console.error('Failed to load products for movement modal:', err);
+      setProductsError(true);
+      showToast(err.message || 'Failed to load products for the movement form.', 'danger');
     }
   };
 
@@ -86,6 +100,7 @@ const StockMovements = () => {
       product: productsList[0]?._id || '',
       movementType: 'IN',
       quantity: 1,
+      adjustmentDirection: 'ADD',
       reason: '',
       referenceNumber: '',
     });
@@ -105,8 +120,11 @@ const StockMovements = () => {
     setSubmitting(true);
     setFormError('');
 
-    // Pre-check for OUT movement
-    if (formData.movementType === 'OUT' && selectedProductDetails) {
+    // Pre-check for deductions against available stock
+    const isDeduction =
+      formData.movementType === 'OUT' ||
+      (formData.movementType === 'ADJUSTMENT' && formData.adjustmentDirection === 'SUBTRACT');
+    if (isDeduction && selectedProductDetails) {
       if (Number(formData.quantity) > selectedProductDetails.quantity) {
         setFormError(
           `Cannot deduct ${formData.quantity} units. Available stock is only ${selectedProductDetails.quantity}.`
@@ -141,7 +159,7 @@ const StockMovements = () => {
             <i className="bi bi-plus-lg"></i> Record Stock Movement
           </button>
           <a
-            href="/api/v1/reports/stock-movements/export"
+            href={reportService.exportMovementsUrl}
             download
             className="btn btn-outline-secondary btn-sm"
           >
@@ -241,7 +259,7 @@ const StockMovements = () => {
                         {m.reason}
                       </td>
                       <td>
-                        <span className="font-monospace small text-primary">{m.referenceNumber || '�'}</span>
+                        <span className="font-monospace small text-primary">{m.referenceNumber || 'N/A'}</span>
                       </td>
                       <td>{m.performedBy?.name || 'System Admin'}</td>
                       <td className="text-muted">{new Date(m.createdAt).toLocaleString()}</td>
@@ -284,18 +302,30 @@ const StockMovements = () => {
 
                     <div className="mb-3">
                       <label className="form-label small fw-semibold text-secondary">Select Product *</label>
-                      <select
-                        className="form-select form-select-sm"
-                        value={formData.product}
-                        onChange={(e) => handleProductChange(e.target.value)}
-                        required
-                      >
-                        {productsList.map((p) => (
-                          <option key={p._id} value={p._id}>
-                            {p.name} (SKU: {p.sku} | In Stock: {p.quantity})
+                      {productsError ? (
+                        <div className="alert alert-warning py-2 small d-flex justify-content-between align-items-center mb-0">
+                          <span>Product list failed to load.</span>
+                          <button className="btn btn-sm btn-outline-warning" type="button" onClick={fetchProductsForSelect}>
+                            Retry
+                          </button>
+                        </div>
+                      ) : (
+                        <select
+                          className="form-select form-select-sm"
+                          value={formData.product}
+                          onChange={(e) => handleProductChange(e.target.value)}
+                          required
+                        >
+                          <option value="" disabled>
+                            {productsList.length ? 'Select a product…' : 'No products available'}
                           </option>
-                        ))}
-                      </select>
+                          {productsList.map((p) => (
+                            <option key={p._id} value={p._id}>
+                              {p.name} (SKU: {p.sku} | In Stock: {p.quantity})
+                            </option>
+                          ))}
+                        </select>
+                      )}
                       {selectedProductDetails && (
                         <div className="small text-muted mt-1">
                           Current available quantity:{' '}
@@ -318,7 +348,21 @@ const StockMovements = () => {
                         </select>
                       </div>
 
-                      <div className="col-6">
+                      {formData.movementType === 'ADJUSTMENT' && (
+                        <div className="col-6">
+                          <label className="form-label small fw-semibold text-secondary">Adjustment Direction *</label>
+                          <select
+                            className="form-select form-select-sm"
+                            value={formData.adjustmentDirection}
+                            onChange={(e) => setFormData({ ...formData, adjustmentDirection: e.target.value })}
+                          >
+                            <option value="ADD">ADD (+ units)</option>
+                            <option value="SUBTRACT">SUBTRACT (− units)</option>
+                          </select>
+                        </div>
+                      )}
+
+                      <div className={`col-6 ${formData.movementType === 'ADJUSTMENT' ? 'col-12 mt-2' : ''}`}>
                         <label className="form-label small fw-semibold text-secondary">Quantity *</label>
                         <input
                           type="number"

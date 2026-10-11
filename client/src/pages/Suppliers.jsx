@@ -67,7 +67,7 @@ const Suppliers = () => {
       email: s.email,
       phone: s.phone,
       address: s.address,
-      gstin: s.gstin || '',
+      gstin: s.gstin || 'N/A',
     });
     setFormError('');
     setShowModal(true);
@@ -204,7 +204,7 @@ const Suppliers = () => {
                         {s.address}
                       </td>
                       <td>
-                        <span className="font-monospace text-muted small">{s.gstin || '—'}</span>
+                        <span className="font-monospace text-muted small">{s.gstin || 'N/A'}</span>
                       </td>
                       <td>
                         <button

@@ -71,6 +71,8 @@ const stockMovementSchema = z.object({
   quantity: z.coerce.number().int().min(1, 'Quantity must be at least 1'),
   reason: z.string().min(2, 'Reason is required').max(250),
   referenceNumber: z.string().max(100).optional().default(''),
+  adjustmentDirection: z.enum(['ADD', 'SUBTRACT']).optional().default('ADD'),
+  isAbsolute: z.boolean().optional().default(false),
 });
 
 const orderItemSchema = z.object({

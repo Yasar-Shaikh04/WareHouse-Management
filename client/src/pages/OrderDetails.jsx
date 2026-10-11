@@ -15,6 +15,7 @@ const OrderDetails = () => {
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [updating, setUpdating] = useState(false);
 
   // Status Change State
@@ -26,18 +27,27 @@ const OrderDetails = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
+  // Purge (delete cancelled order) modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const fetchOrder = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const res = await orderService.getById(id);
       setOrder(res.order);
       setNewStatus(res.order.status);
     } catch (err) {
-      showToast(err.message || 'Failed to load order invoice details.', 'danger');
+      if (err.status === 404) {
+        setOrder(null);
+      } else {
+        setLoadError(err.message || 'Failed to load order invoice details.');
+      }
     } finally {
       setLoading(false);
     }
-  }, [id, showToast]);
+  }, [id]);
 
   useEffect(() => {
     fetchOrder();
@@ -78,14 +88,48 @@ const OrderDetails = () => {
     }
   };
 
+  const handlePurgeOrder = async () => {
+    setDeleteLoading(true);
+    try {
+      await orderService.delete(order._id);
+      showToast(`Order ${order.orderNumber} permanently deleted.`, 'success');
+      setShowDeleteModal(false);
+      navigate('/orders');
+    } catch (err) {
+      showToast(err.message || 'Failed to delete order.', 'danger');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner text="Loading invoice and order details..." />;
+  }
+
+  if (loadError) {
+    return (
+      <div className="text-center py-5">
+        <div className="alert alert-danger d-inline-block text-start" role="alert">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {loadError}
+        </div>
+        <div className="d-flex justify-content-center gap-2">
+          <button className="btn btn-primary btn-sm" onClick={fetchOrder}>
+            <i className="bi bi-arrow-clockwise me-1"></i> Retry
+          </button>
+          <Link to="/orders" className="btn btn-outline-secondary btn-sm">
+            Back to Orders
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (!order) {
     return (
       <div className="text-center py-5">
         <h4>Order Not Found</h4>
+        <p className="text-muted small">This order may have been deleted or the link is invalid.</p>
         <Link to="/orders" className="btn btn-primary btn-sm mt-2">
           Back to Orders
         </Link>
@@ -135,6 +179,15 @@ const OrderDetails = () => {
                 <i className="bi bi-x-circle me-1"></i> Cancel Order
               </button>
             </>
+          )}
+
+          {hasRole('Admin') && order.status === 'Cancelled' && (
+            <button
+              className="btn btn-outline-danger btn-sm"
+              onClick={() => setShowDeleteModal(true)}
+            >
+              <i className="bi bi-trash me-1"></i> Purge Cancelled Order
+            </button>
           )}
         </div>
       </div>
@@ -316,6 +369,18 @@ const OrderDetails = () => {
         loading={cancelLoading}
         onConfirm={handleCancelOrder}
         onCancel={() => setShowCancelModal(false)}
+      />
+
+      {/* Purge Cancelled Order Confirm Modal */}
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Permanently Delete Order"
+        message={`This permanently removes cancelled order "${order.orderNumber}" from the records. Restored stock from the cancellation is kept. This action cannot be undone.`}
+        confirmText="Delete Order"
+        confirmVariant="danger"
+        loading={deleteLoading}
+        onConfirm={handlePurgeOrder}
+        onCancel={() => setShowDeleteModal(false)}
       />
     </div>
   );

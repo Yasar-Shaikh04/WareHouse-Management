@@ -49,7 +49,7 @@ const Categories = () => {
 
   const handleOpenEdit = (cat) => {
     setEditingCategory(cat);
-    setFormData({ name: cat.name, description: cat.description || '' });
+    setFormData({ name: cat.name, description: cat.description || 'N/A' });
     setFormError('');
     setShowModal(true);
   };
@@ -161,7 +161,7 @@ const Categories = () => {
                     <tr key={cat._id}>
                       <td className="fw-semibold text-dark">{cat.name}</td>
                       <td className="text-muted" style={{ maxWidth: '350px' }}>
-                        {cat.description || '—'}
+                        {cat.description || 'N/A'}
                       </td>
                       <td>
                         <span className={`badge ${cat.productCount > 0 ? 'bg-primary' : 'bg-light text-muted border'}`}>
