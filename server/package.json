@@ -8,6 +8,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "seed": "node scripts/seed.js",
+    "provision:user": "node scripts/provision-demo-user.js",
     "test:api": "node scripts/test-api.js"
   },
   "dependencies": {

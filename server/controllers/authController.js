@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { logAuthEvent } = require('../utils/diagnostics');
 
 const register = async (req, res, next) => {
   try {
@@ -41,6 +42,13 @@ const login = async (req, res, next) => {
     const cleanEmail = (email || '').trim().toLowerCase();
 
     const user = await User.findOne({ email: cleanEmail });
+
+    logAuthEvent('login', {
+      email: cleanEmail,
+      userFound: Boolean(user),
+      outcome: !user ? 'unknown_email' : !user.isActive ? 'inactive' : 'password_check',
+    });
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -57,6 +65,11 @@ const login = async (req, res, next) => {
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      logAuthEvent('login', {
+        email: cleanEmail,
+        userFound: true,
+        outcome: 'password_mismatch',
+      });
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password.',

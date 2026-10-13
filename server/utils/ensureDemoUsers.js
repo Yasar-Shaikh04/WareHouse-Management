@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { runtimeContext } = require('./diagnostics');
 
 const DEMO_USERS = [
   {
@@ -22,16 +23,21 @@ const DEMO_USERS = [
 ];
 
 const ensureDemoUsers = async () => {
-  try {
-    for (const demo of DEMO_USERS) {
-      const existing = await User.findOne({ email: demo.email.toLowerCase() });
-      if (!existing) {
-        await User.create(demo);
-        console.log(`[Demo Accounts] Auto-provisioned: ${demo.email} (${demo.role})`);
+  console.log(`[Demo Accounts] Target database: ${runtimeContext().db} (env: ${runtimeContext().env})`);
+  for (const demo of DEMO_USERS) {
+    const email = demo.email.toLowerCase();
+    try {
+      const existing = await User.findOne({ email });
+      if (existing) {
+        console.log(`[Demo Accounts] Present, kept as-is: ${email} (${existing.role})`);
+        continue;
       }
+      await User.create({ ...demo, email });
+      console.log(`[Demo Accounts] Auto-provisioned: ${email} (${demo.role})`);
+    } catch (err) {
+      // Keep seeding the remaining accounts instead of aborting the whole loop.
+      console.error(`[Demo Accounts] Failed to provision ${email}: ${err.message}`);
     }
-  } catch (err) {
-    console.warn(`[Demo Accounts] Notice: ${err.message}`);
   }
 };
 

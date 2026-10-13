@@ -51,6 +51,24 @@
 ```
 - **Response (200 OK)**: Sets HTTP-Only cookie `connect.sid`.
 
+#### Demo accounts (provisioned automatically at server startup)
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@warehouse.local` | `Admin@12345` |
+| Warehouse Manager | `manager@warehouse.local` | `Manager@12345` |
+| Staff | `staff@warehouse.local` | `Staff@12345` |
+
+Emails are matched case-insensitively and are trimmed before lookup; passwords are case-sensitive.
+Existing accounts are never overwritten on startup. To re-create a missing demo account or restore its
+password without touching any other data:
+
+```bash
+cd server
+npm run provision:user                                    # report / create any missing demo account
+npm run provision:user -- --email=staff@warehouse.local --reset-password
+```
+
 ### 1.3 User Logout
 - **Method**: `POST`
 - **Path**: `/auth/logout`

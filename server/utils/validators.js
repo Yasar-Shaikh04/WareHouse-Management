@@ -8,20 +8,20 @@ const mongoIdSchema = z
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().email('Valid email address is required').toLowerCase(),
+  email: z.string().trim().email('Valid email address is required').toLowerCase(),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
   // Public registration restricts role to Staff or Warehouse Manager only (Admin cannot be self-registered)
   role: z.enum(['Warehouse Manager', 'Staff']).default('Staff'),
 });
 
 const loginSchema = z.object({
-  email: z.string().email('Valid email address is required').toLowerCase(),
+  email: z.string().trim().email('Valid email address is required').toLowerCase(),
   password: z.string().min(1, 'Password is required'),
 });
 
 const updateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().email('Valid email address is required').toLowerCase(),
+  email: z.string().trim().email('Valid email address is required').toLowerCase(),
 });
 
 const changePasswordSchema = z.object({
