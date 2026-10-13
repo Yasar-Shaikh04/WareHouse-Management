@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
-const { getSessionMiddleware } = require('./config/session');
+const { getSessionMiddleware, isCrossSiteDeployment } = require('./config/session');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 // Route imports
@@ -31,7 +31,9 @@ const createApp = () => {
     })
   );
 
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Restrict CORS when running as a deployed cross-site backend, even if
+  // NODE_ENV is not explicitly set to "production".
+  const isDeployed = process.env.NODE_ENV === 'production' || isCrossSiteDeployment();
 
   // CORS configuration. CLIENT_URL may be a comma-separated list of allowed
   // frontend origins (e.g. Vercel production + preview deployments).
@@ -55,8 +57,8 @@ const createApp = () => {
         if (allowedOrigins.includes(origin)) {
           return callback(null, true);
         }
-        // Restrict unknown origins in production; keep dev convenience locally.
-        if (isProduction) {
+        // Restrict unknown origins when deployed; keep dev convenience locally.
+        if (isDeployed) {
           return callback(null, false);
         }
         return callback(null, true);

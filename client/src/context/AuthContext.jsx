@@ -27,15 +27,22 @@ export const AuthProvider = ({ children }) => {
   }, [checkAuth]);
 
   const login = async (credentials) => {
-    const data = await authService.login(credentials);
-    setUser(data.user);
-    return data;
+    // Establish the session on the server (sets the cookie)...
+    await authService.login(credentials);
+    // ...then confirm it by reading the profile back over the same cookie.
+    // Only treat the user as authenticated when the backend agrees, so a
+    // session that the browser failed to persist can never show a false
+    // "logged in" state while protected API calls return 401.
+    const me = await authService.getCurrentUser();
+    setUser(me.user);
+    return me;
   };
 
   const register = async (userData) => {
-    const data = await authService.register(userData);
-    setUser(data.user);
-    return data;
+    await authService.register(userData);
+    const me = await authService.getCurrentUser();
+    setUser(me.user);
+    return me;
   };
 
   const logout = async () => {
